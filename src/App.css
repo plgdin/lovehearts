@@ -15,7 +15,7 @@ body, html {
   overflow-x: hidden;
 }
 
-/* --- VIDEO LAYERS --- */
+/* --- VIDEO LAYERS (INTRO & DOOR) --- */
 .app-container {
   position: relative;
   width: 100vw;
@@ -93,7 +93,7 @@ body, html {
   text-transform: uppercase;
   letter-spacing: 2px;
   transition: all 0.3s ease;
-  overflow: visible; /* Allows hearts to fly out */
+  overflow: visible;
 }
 
 .start-btn:hover {
@@ -111,25 +111,20 @@ body, html {
 }
 
 @keyframes floatHeart {
-  0% {
-    transform: translateY(0) scale(0.5);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-60px) scale(1.5);
-    opacity: 0;
-  }
+  0% { transform: translateY(0) scale(0.5); opacity: 1; }
+  100% { transform: translateY(-60px) scale(1.5); opacity: 0; }
 }
 
 /* --- MAIN SITE --- */
 .main-site {
   position: relative;
   z-index: 20;
-  background: #fff;
+  background: #000;
   min-height: 100vh;
   opacity: 0;
   display: none;
   transition: opacity 2s ease;
+  color: #fff;
 }
 
 .main-site.fade-in {
@@ -141,78 +136,134 @@ body, html {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 50px;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  padding: 30px 50px;
+  background: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
 }
 
 .navbar h2 {
   font-family: 'Playfair Display', serif;
-  color: #333;
+  color: #fff;
 }
 
 .navbar ul {
   display: flex;
   list-style: none;
-  gap: 20px;
+  gap: 30px;
+}
+
+.navbar li {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
 }
 
 .hero {
-  height: 90vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #f9f9f9;
-}
-
-.hero h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 3rem;
-  margin-bottom: 30px;
-  color: #222;
-}
-
-.trailer-wrapper {
-  width: 70%;
-  max-width: 900px;
-  aspect-ratio: 16/9;
-  background: #000;
-  margin-bottom: 40px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-  border-radius: 8px;
+  height: 100vh;
+  width: 100%;
+  position: relative;
   overflow: hidden;
 }
 
-.view-services-btn {
-  padding: 15px 40px;
-  background: #222;
-  color: #fff;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s;
+.trailer-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
-.view-services-btn:hover {
-  background: #444;
+.trailer-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.services-placeholder {
-  height: 50vh;
+/* --- SERVICES SECTION --- */
+.services-section {
+  padding: 150px 50px;
+  background: #000;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  background: #eee;
+}
+
+.services-title-scroll {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  color: #fff;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+  margin-bottom: 100px;
+}
+
+.services-title-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.services-list {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 150px;
+  gap: 80px;
+  opacity: 0; /* Hidden by default */
+  transform: translateY(40px); /* Positioned down */
+  transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+}
+
+/* Class added when individual item is scrolled into view */
+.service-item.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.service-photo {
+  flex: 1.2;
+}
+
+.service-photo img {
+  width: 100%;
+  height: 550px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.service-info {
+  flex: 1;
+  color: #fff;
+}
+
+.service-info h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  margin-bottom: 25px;
+}
+
+.service-info p {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  line-height: 1.8;
+  font-size: 1.15rem;
+  color: #ccc;
 }
 
 /* --- ANIMATIONS --- */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { 
+  from { opacity: 0; transform: translateY(30px); } 
+  to { opacity: 1; transform: translateY(0); } 
 }
