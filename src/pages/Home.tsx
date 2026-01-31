@@ -1,13 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+// Import the updated realistic blooms component
+import { DetailedBlooms } from './DetailedBlooms';
 
 // --- TYPES ---
 type AppStage = 'intro' | 'transition' | 'main';
 
 interface Heart {
   id: number;
-  x: number;
-  y: number;
-  angle: number;
+  angle: number;    
+  velocity: number; 
+  size: number;
 }
 
 const Home: React.FC = () => {
@@ -18,14 +21,12 @@ const Home: React.FC = () => {
   // --- REFS ---
   const transitionVideoRef = useRef<HTMLVideoElement>(null);
   const introVideoRef = useRef<HTMLVideoElement>(null);
-  // FIXED: Changed HTMLElement to HTMLHeadingElement to match the <h2> tag
   const titleRef = useRef<HTMLHeadingElement>(null);
   const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // --- SCROLL OBSERVER ---
   useEffect(() => {
     const observerOptions = { threshold: 0.2 };
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -35,7 +36,6 @@ const Home: React.FC = () => {
     }, observerOptions);
 
     if (titleRef.current) observer.observe(titleRef.current);
-
     serviceRefs.current.forEach((el) => {
       if (el) observer.observe(el);
     });
@@ -44,28 +44,25 @@ const Home: React.FC = () => {
   }, [stage]);
 
   // --- HANDLERS ---
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (Math.random() > 0.3) return;
-    const btn = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - btn.left;
-    const y = e.clientY - btn.top;
-    const newHeart: Heart = {
-      id: Date.now() + Math.random(),
-      x, y,
-      angle: Math.random() * 40 - 20,
-    };
-    setHearts((prev: Heart[]) => [...prev, newHeart]);
-    setTimeout(() => {
-      setHearts((prev: Heart[]) => prev.filter((h: Heart) => h.id !== newHeart.id));
-    }, 1000);
-  };
-
   const handleStartClick = () => {
-    setStage('transition');
-    if (transitionVideoRef.current) {
-      transitionVideoRef.current.currentTime = 0;
-      transitionVideoRef.current.play().catch(err => console.error("Video play error:", err));
+    const newHearts: Heart[] = [];
+    for (let i = 0; i < 40; i++) {
+      newHearts.push({
+        id: i,
+        angle: Math.random() * 360, 
+        velocity: 80 + Math.random() * 120, 
+        size: 0.8 + Math.random() * 1.2
+      });
     }
+    setHearts(newHearts);
+
+    setTimeout(() => {
+        setStage('transition');
+        if (transitionVideoRef.current) {
+          transitionVideoRef.current.currentTime = 0;
+          transitionVideoRef.current.play().catch(err => console.error("Video play error:", err));
+        }
+    }, 800);
   };
 
   const handleTransitionEnd = () => {
@@ -106,12 +103,12 @@ const Home: React.FC = () => {
       <video
         ref={introVideoRef}
         className={`bg-video ${stage !== 'intro' ? 'fade-out' : ''}`}
-        autoPlay muted loop playsInline
+        autoPlay muted playsInline
       >
         <source src="/videos/intro.mp4" type="video/mp4" />
       </video>
 
-      {/* --- VIDEO LAYER: TRANSITION (Church Door) --- */}
+      {/* --- VIDEO LAYER: TRANSITION --- */}
       <video
         ref={transitionVideoRef}
         className={`transition-video ${stage === 'transition' ? 'visible' : ''}`}
@@ -124,15 +121,24 @@ const Home: React.FC = () => {
       {/* --- UI LAYER: INTRO OVERLAY --- */}
       {stage === 'intro' && (
         <div className="intro-overlay">
-          <h1 className="title">Lovehearts Wedding & Event Planners</h1>
-          <button className="start-btn" onClick={handleStartClick} onMouseMove={handleMouseMove}>
-            Start Planning
+          <div className="btn-wrapper">
+            <button className="start-btn" onClick={handleStartClick}>
+              Start Planning
+            </button>
             {hearts.map((heart: Heart) => (
-              <span key={heart.id} className="heart-particle" style={{ left: heart.x, top: heart.y, transform: `rotate(${heart.angle}deg)` }}>
+              <span 
+                key={heart.id} 
+                className="heart-particle" 
+                style={{ 
+                    '--angle': `${heart.angle}deg`, 
+                    '--velocity': `${heart.velocity}px`,
+                    fontSize: `${heart.size}rem`
+                } as React.CSSProperties}
+              >
                 ❤
               </span>
             ))}
-          </button>
+          </div>
         </div>
       )}
 
@@ -168,9 +174,19 @@ const Home: React.FC = () => {
                 className="service-item"
                 style={{ flexDirection: index % 2 === 0 ? 'row' : 'row-reverse' }}
               >
-                <div className="service-photo">
-                  <img src={service.img} alt={service.title} />
-                </div>
+                {/* BLOOM EFFECT CONTAINER */}
+                <motion.div 
+                  className="service-photo-wrapper"
+                  initial="hidden"       // Flowers are hidden by default
+                  whileHover="visible"   // Flowers bloom on hover
+                >
+                  {/* 1. The Detailed Blooms (On Top) */}
+                  <DetailedBlooms />
+                  
+                  {/* 2. The Main Service Image (Behind) */}
+                  <img src={service.img} className="main-img" alt={service.title} />
+                </motion.div>
+                
                 <div className="service-info">
                   <h3>{service.title}</h3>
                   <p>{service.desc}</p>
