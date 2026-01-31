@@ -10,11 +10,31 @@ const springConfig = {
 };
 
 // --- SVG PATHS ---
-const vinePath1 = "M50,50 Q 100,20 140,40"; 
-const vinePath2 = "M50,50 Q 10,100 30,140";
-const vinePath3 = "M50,50 Q 100,100 140,60";
+const vinePath1 = "M50,50 Q 90,20 130,40"; 
+const vinePath2 = "M50,50 Q 20,90 40,130";
+const vinePath3 = "M50,50 Q 90,90 130,50";
 
 // --- VARIANTS ---
+
+// Dynamic corner movement
+const topLeftCornerVariant = {
+  hidden: { top: 0, left: 0 },
+  visible: { 
+    top: -50, 
+    left: -50,
+    transition: { duration: 0.6, ease: "easeOut" }
+  }
+};
+
+const bottomRightCornerVariant = {
+  hidden: { bottom: 0, right: 0 },
+  visible: { 
+    bottom: -50, 
+    right: -50,
+    transition: { duration: 0.6, ease: "easeOut" }
+  }
+};
+
 const vineVariant = {
   hidden: { pathLength: 0, opacity: 0 },
   visible: (delay: number) => ({
@@ -30,32 +50,61 @@ const petalVariant = {
     scale: 1,
     opacity: 1,
     transition: { 
-        duration: 0.6,
+        duration: 0.5,
         ease: "easeOut",
-        delay: i * 0.04 
+        delay: i * 0.03 
     }
   })
 };
 
-// --- COMPONENT: PERFECT SYMMETRY ROSE (No Center Dots) ---
-const PerfectRose: React.FC<{ color: string; delayBase: number }> = ({ color, delayBase }) => {
+// --- COMPONENT: DENSE ROSE ---
+const DenseRose: React.FC<{ color: string; delayBase: number }> = ({ color, delayBase }) => {
   
-  // Layer 1: Outer Ring (8 petals)
-  const outerPetals = Array.from({ length: 8 }).map((_, i) => i);
-  // Layer 2: Inner Ring (8 petals - Matched for symmetry)
-  const innerPetals = Array.from({ length: 8 }).map((_, i) => i);
+  // Petal Shape: Wide and soft
+  const petalShape = "M0,0 C -15,-10 -25,-25 0,-40 C 25,-25 15,-10 0,0";
 
-  // Wide, rounded petal shape
-  const petalShape = "M0,0 C -12,-15 -25,-35 0,-45 C 25,-35 12,-15 0,0";
+  // Helper to render rings
+  const renderRing = (count: number, radius: number, angleOffset: number, scale: number, zIndex: number, hasOutline: boolean) => {
+    return Array.from({ length: count }).map((_, i) => {
+      const angle = (i / count) * 360 + angleOffset;
+      const radian = (angle * Math.PI) / 180;
+      
+      const x = 50 + radius * Math.cos(radian);
+      const y = 50 + radius * Math.sin(radian);
+      const rotation = angle + 90;
+
+      return (
+        <motion.path
+          key={`${radius}-${i}`}
+          d={petalShape}
+          fill={`url(#grad-${color})`}
+          
+          // CONDITIONAL STROKE: Removes outline for inner petals
+          stroke={hasOutline ? (color === 'pink' ? "#800f2f" : "#a05a2c") : "none"} 
+          strokeWidth={hasOutline ? "0.4" : "0"}
+          
+          variants={petalVariant}
+          custom={delayBase + (zIndex * 0.1) + (i * 0.02)}
+          
+          style={{
+            translateX: x,
+            translateY: y,
+            rotate: rotation,
+            scale: scale,
+            zIndex: zIndex
+          }}
+        />
+      );
+    });
+  };
 
   return (
-    // INCREASED SIZE: 180x180
-    <motion.svg width="180" height="180" viewBox="0 0 100 100" style={{ overflow: 'visible' }}>
+    <motion.svg width="150" height="150" viewBox="0 0 100 100" style={{ overflow: 'visible' }}>
       <defs>
         <radialGradient id={`grad-${color}`} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
           <stop offset="0%" stopColor={color === 'pink' ? "#641220" : "#5c3a21"} />
           <stop offset="60%" stopColor={color === 'pink' ? "#e01e37" : "#e08d55"} />
-          <stop offset="100%" stopColor={color === 'pink' ? "#ffccd5" : "#fff"} />
+          <stop offset="100%" stopColor={color === 'pink' ? "#ffb3c1" : "#fff"} />
         </radialGradient>
         
         <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -70,73 +119,18 @@ const PerfectRose: React.FC<{ color: string; delayBase: number }> = ({ color, de
         <motion.path d={vinePath3} variants={vineVariant} custom={delayBase + 0.2} strokeWidth="1" />
       </motion.g>
 
-      {/* --- OUTER RING (8 Petals) --- */}
       <g filter="url(#shadow)">
-      {outerPetals.map((i) => {
-        const count = 8;
-        const radius = 24; 
-        const angle = (i / count) * 360;
-        const radian = (angle * Math.PI) / 180;
-        
-        const x = 50 + radius * Math.cos(radian);
-        const y = 50 + radius * Math.sin(radian);
-        const rotation = angle + 90; 
+        {/* LAYER 1: OUTER (12 Petals, Radius 22, Has Outline) */}
+        {renderRing(12, 22, 0, 1.0, 1, true)}
 
-        return (
-          <motion.path
-            key={`outer-${i}`}
-            d={petalShape}
-            fill={`url(#grad-${color})`}
-            stroke={color === 'pink' ? "#800f2f" : "#a05a2c"} 
-            strokeWidth="0.5"
-            variants={petalVariant}
-            custom={delayBase + (i * 0.05)}
-            style={{
-              translateX: x,
-              translateY: y,
-              rotate: rotation,
-              scale: 1.1, // Slightly larger outer petals
-            }}
-          />
-        );
-      })}
-      </g>
+        {/* LAYER 2: MIDDLE (12 Petals, Radius 14, Offset to fill gaps, Has Outline) */}
+        {renderRing(12, 14, 15, 0.85, 2, true)}
 
-      {/* --- INNER RING (8 Petals - Interlocked) --- */}
-      <g filter="url(#shadow)">
-      {innerPetals.map((i) => {
-        const count = 8;
-        const radius = 12; 
-        // OFFSET: 360 / 8 / 2 = 22.5 deg. This places inner petals EXACTLY in the gaps.
-        const angle = (i / count) * 360 + 22.5; 
-        const radian = (angle * Math.PI) / 180;
-        
-        const x = 50 + radius * Math.cos(radian);
-        const y = 50 + radius * Math.sin(radian);
-        const rotation = angle + 90;
-
-        return (
-          <motion.path
-            key={`inner-${i}`}
-            d={petalShape}
-            fill={`url(#grad-${color})`}
-            stroke={color === 'pink' ? "#800f2f" : "#a05a2c"} 
-            strokeWidth="0.5"
-            variants={petalVariant}
-            custom={delayBase + 0.4 + (i * 0.05)}
-            style={{
-              translateX: x,
-              translateY: y,
-              rotate: rotation,
-              scale: 0.75, // Smaller inner petals
-            }}
-          />
-        );
-      })}
+        {/* LAYER 3: INNER (10 Petals, Radius 6, NO OUTLINE) */}
+        {/* Removing the outline here solves the "weird" center look */}
+        {renderRing(10, 6, 0, 0.55, 3, false)}
       </g>
       
-      {/* --- CENTER BUD REMOVED --- */}
-
     </motion.svg>
   );
 };
@@ -147,20 +141,29 @@ export const DetailedBlooms: React.FC = () => {
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
       
-      {/* TOP LEFT - Adjusted position for larger flower */}
-      <div style={{ position: 'absolute', top: '-60px', left: '-60px', zIndex: 10 }}>
-        <PerfectRose color="pink" delayBase={0} />
-      </div>
+      {/* TOP LEFT */}
+      <motion.div 
+        style={{ position: 'absolute', zIndex: 10 }}
+        variants={topLeftCornerVariant}
+      >
+        <DenseRose color="pink" delayBase={0} />
+      </motion.div>
 
       {/* SECONDARY ACCENT */}
-      <div style={{ position: 'absolute', top: '-10px', left: '-50px', zIndex: 9, transform: 'scale(0.5)' }}>
-         <PerfectRose color="peach" delayBase={0.2} />
-      </div>
+      <motion.div 
+        style={{ position: 'absolute', zIndex: 9, transform: 'scale(0.6) translate(40px, 40px)' }}
+        variants={topLeftCornerVariant}
+      >
+         <DenseRose color="peach" delayBase={0.2} />
+      </motion.div>
 
-      {/* BOTTOM RIGHT (Rotated) */}
-      <div style={{ position: 'absolute', bottom: '-60px', right: '-60px', zIndex: 10, transform: 'rotate(180deg)' }}>
-        <PerfectRose color="pink" delayBase={0.1} />
-      </div>
+      {/* BOTTOM RIGHT */}
+      <motion.div 
+        style={{ position: 'absolute', zIndex: 10, transform: 'rotate(180deg)' }}
+        variants={bottomRightCornerVariant}
+      >
+        <DenseRose color="pink" delayBase={0.1} />
+      </motion.div>
 
     </div>
   );
