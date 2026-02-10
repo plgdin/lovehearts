@@ -15,46 +15,64 @@ body, html {
   overflow-x: hidden;
 }
 
-/* --- VIDEO LAYERS --- */
+/* --- APP CONTAINER --- */
 .app-container {
   position: relative;
-  width: 100vw;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #000;
+}
+
+/* =========================================
+   NEW TRANSITION LOGIC (The Fix)
+   ========================================= */
+
+/* 1. INTRO LAYER (The Curtain) */
+.intro-layer {
+  position: fixed; /* Covers the screen */
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100vh;
+  z-index: 50; /* On top of everything */
+  background: #000;
+  transition: opacity 2s ease-in-out; /* Smooth fade */
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.bg-video {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  transition: opacity 1.5s ease-out;
-}
-
-.bg-video.fade-out {
+/* When this class is added, the curtain dissolves */
+.intro-layer.fade-out {
   opacity: 0;
+  pointer-events: none; /* Allows clicking things underneath immediately */
 }
 
-.transition-video {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* 2. MAIN SITE LAYER */
+.main-site {
+  position: relative; /* Allows scrolling */
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 5;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
+  min-height: 100vh;
+  z-index: 1; /* Underneath the curtain */
+  opacity: 0; /* Hidden initially */
+  transition: opacity 1s ease-in-out;
 }
 
-.transition-video.visible {
+/* When this class is added, the site appears */
+.main-site.visible {
   opacity: 1;
 }
 
-/* --- INTRO OVERLAY --- */
+/* --- VIDEO STYLES --- */
+.bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- INTRO OVERLAY UI --- */
 .intro-overlay {
   position: absolute;
   top: 0;
@@ -67,11 +85,9 @@ body, html {
   justify-content: flex-end; 
   align-items: center;
   padding-bottom: 80px; 
-  background: rgba(0, 0, 0, 0.1); 
-  animation: fadeIn 1s ease-in;
 }
 
-/* --- BUTTON WRAPPER & HEARTS --- */
+/* --- BUTTON & HEARTS --- */
 .btn-wrapper {
   position: relative;
   display: flex;
@@ -102,7 +118,6 @@ body, html {
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
 }
 
-/* --- RADIAL EXPLOSION BEHIND BUTTON --- */
 .heart-particle {
   position: absolute;
   top: 50%;
@@ -126,23 +141,7 @@ body, html {
   }
 }
 
-/* --- MAIN SITE --- */
-.main-site {
-  position: relative;
-  z-index: 20;
-  background: #000;
-  min-height: 100vh;
-  opacity: 0;
-  display: none;
-  transition: opacity 2s ease;
-  color: #fff;
-}
-
-.main-site.fade-in {
-  display: block;
-  opacity: 1;
-}
-
+/* --- MAIN SITE COMPONENTS --- */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -165,6 +164,7 @@ body, html {
   display: flex;
   list-style: none;
   gap: 30px;
+  color: #fff;
 }
 
 .navbar li {
@@ -241,55 +241,43 @@ body, html {
   transform: translateY(0);
 }
 
-/* --- THE BLOOMING EFFECT CSS (Updated for Realism) --- */
-
+/* --- BLOOMING EFFECT --- */
 .service-photo-wrapper {
   flex: 1.2;
   height: 550px;
   position: relative; 
-  /* Allows SVG flowers and vines to extend outside the image box */
   overflow: visible; 
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  /* Context for z-index stacking */
   z-index: 1; 
 }
 
-/* The Blooms SVG container */
-/* We target the direct child div (DetailedBlooms) to place it ON TOP */
 .service-photo-wrapper > div:first-child {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  /* High z-index ensures vines wrap OVER the photo */
   z-index: 2; 
-  /* Critical: Allows mouse interaction to pass through gaps to the image */
   pointer-events: none; 
 }
 
-/* The actual service image */
 .main-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
   position: relative;
-  /* Image sits BEHIND the blooms */
   z-index: 1; 
   transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.6s ease;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* HOVER EFFECTS */
 .service-photo-wrapper:hover .main-img {
-  /* Shrink photo slightly to give space for the wrapping vines */
   transform: scale(0.9); 
   box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-  /* Slight dimming makes the bright flowers pop more */
   filter: brightness(0.95);
 }
 
@@ -310,11 +298,4 @@ body, html {
   line-height: 1.8;
   font-size: 1.15rem;
   color: #ccc;
-}
-
-/* --- ANIMATIONS --- */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { 
-  from { opacity: 0; transform: translateY(30px); } 
-  to { opacity: 1; transform: translateY(0); } 
 }

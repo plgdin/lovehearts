@@ -127,8 +127,11 @@ const DenseRose: React.FC<{ color: string; delayBase: number }> = ({ color, dela
         {renderRing(12, 14, 15, 0.85, 2, true)}
 
         {/* LAYER 3: INNER (10 Petals, Radius 6, NO OUTLINE) */}
-        {/* Removing the outline here solves the "weird" center look */}
         {renderRing(10, 6, 0, 0.55, 3, false)}
+
+        {/* LAYER 4: THE BLOOMING BUD (Added) */}
+        {/* Very tight center cluster (6 Petals, Radius 0, Tiny Scale) */}
+        {renderRing(6, 0, 0, 0.25, 4, false)}
       </g>
       
     </motion.svg>

@@ -1,10 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-// Import the updated realistic blooms component
 import { DetailedBlooms } from './DetailedBlooms';
-
-// --- TYPES ---
-type AppStage = 'intro' | 'transition' | 'main';
 
 interface Heart {
   id: number;
@@ -15,17 +11,74 @@ interface Heart {
 
 const Home: React.FC = () => {
   // --- STATE ---
-  const [stage, setStage] = useState<AppStage>('intro');
+  const [hasStarted, setHasStarted] = useState(false);
   const [hearts, setHearts] = useState<Heart[]>([]);
-  
+  const [introUnmounted, setIntroUnmounted] = useState(false);
+
   // --- REFS ---
-  const transitionVideoRef = useRef<HTMLVideoElement>(null);
-  const introVideoRef = useRef<HTMLVideoElement>(null);
+  const trailerRef = useRef<HTMLVideoElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // --- SCROLL OBSERVER ---
+  // --- 1. INITIAL TRAILER AUTOPLAY LOGIC ---
   useEffect(() => {
+    if (hasStarted) {
+      const video = trailerRef.current;
+      if (video) {
+        video.currentTime = 0;
+        const playPromise = video.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.warn("Autoplay blocked, attempting muted fallback", error);
+            video.muted = true;
+            video.play();
+          });
+        }
+      }
+
+      // Remove intro from DOM after 2.5s
+      const timer = setTimeout(() => {
+        setIntroUnmounted(true);
+      }, 2500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [hasStarted]);
+
+  // --- 2. NEW: VIDEO SCROLL OBSERVER (Play/Pause on Scroll) ---
+  useEffect(() => {
+    // Only run this if the site has started and we have a video ref
+    if (!hasStarted || !trailerRef.current) return;
+
+    const videoElement = trailerRef.current;
+
+    const videoObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        // If 50% or more of the video is visible: PLAY
+        if (entry.isIntersecting) {
+          videoElement.play().catch(e => console.log("Scroll play prevented:", e));
+        } 
+        // If less than 50% is visible: PAUSE (this stops audio too)
+        else {
+          videoElement.pause();
+        }
+      });
+    }, {
+      threshold: 0.5 // Trigger when 50% of the video is visible/hidden
+    });
+
+    videoObserver.observe(videoElement);
+
+    return () => {
+      videoObserver.disconnect();
+    };
+  }, [hasStarted]);
+
+  // --- 3. EXISTING ANIMATION OBSERVER (Reveal Text) ---
+  useEffect(() => {
+    if (!hasStarted) return;
+
     const observerOptions = { threshold: 0.2 };
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -35,13 +88,15 @@ const Home: React.FC = () => {
       });
     }, observerOptions);
 
-    if (titleRef.current) observer.observe(titleRef.current);
-    serviceRefs.current.forEach((el) => {
-      if (el) observer.observe(el);
-    });
+    setTimeout(() => {
+        if (titleRef.current) observer.observe(titleRef.current);
+        serviceRefs.current.forEach((el) => {
+          if (el) observer.observe(el);
+        });
+    }, 100);
 
     return () => observer.disconnect();
-  }, [stage]);
+  }, [hasStarted]);
 
   // --- HANDLERS ---
   const handleStartClick = () => {
@@ -57,16 +112,8 @@ const Home: React.FC = () => {
     setHearts(newHearts);
 
     setTimeout(() => {
-        setStage('transition');
-        if (transitionVideoRef.current) {
-          transitionVideoRef.current.currentTime = 0;
-          transitionVideoRef.current.play().catch(err => console.error("Video play error:", err));
-        }
+      setHasStarted(true);
     }, 800);
-  };
-
-  const handleTransitionEnd = () => {
-    setStage('main');
   };
 
   const services = [
@@ -99,51 +146,38 @@ const Home: React.FC = () => {
   return (
     <div className="app-container">
       
-      {/* --- VIDEO LAYER: INTRO --- */}
-      <video
-        ref={introVideoRef}
-        className={`bg-video ${stage !== 'intro' ? 'fade-out' : ''}`}
-        autoPlay muted playsInline
-      >
-        <source src="/videos/intro.mp4" type="video/mp4" />
-      </video>
+      {/* INTRO CURTAIN */}
+      {!introUnmounted && (
+        <div className={`intro-layer ${hasStarted ? 'fade-out' : ''}`}>
+          <video className="bg-video" autoPlay muted loop playsInline>
+            <source src="/videos/intro.mp4" type="video/mp4" />
+          </video>
 
-      {/* --- VIDEO LAYER: TRANSITION --- */}
-      <video
-        ref={transitionVideoRef}
-        className={`transition-video ${stage === 'transition' ? 'visible' : ''}`}
-        muted={false} playsInline
-        onEnded={handleTransitionEnd}
-      >
-        <source src="/videos/church_door.mp4" type="video/mp4" />
-      </video>
-
-      {/* --- UI LAYER: INTRO OVERLAY --- */}
-      {stage === 'intro' && (
-        <div className="intro-overlay">
-          <div className="btn-wrapper">
-            <button className="start-btn" onClick={handleStartClick}>
-              Start Planning
-            </button>
-            {hearts.map((heart: Heart) => (
-              <span 
-                key={heart.id} 
-                className="heart-particle" 
-                style={{ 
-                    '--angle': `${heart.angle}deg`, 
-                    '--velocity': `${heart.velocity}px`,
-                    fontSize: `${heart.size}rem`
-                } as React.CSSProperties}
-              >
-                ❤
-              </span>
-            ))}
+          <div className="intro-overlay">
+            <div className="btn-wrapper">
+              <button className="start-btn" onClick={handleStartClick}>
+                Start Planning
+              </button>
+              {hearts.map((heart: Heart) => (
+                <span 
+                  key={heart.id} 
+                  className="heart-particle" 
+                  style={{ 
+                      '--angle': `${heart.angle}deg`, 
+                      '--velocity': `${heart.velocity}px`,
+                      fontSize: `${heart.size}rem`
+                  } as React.CSSProperties}
+                >
+                  ❤
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* --- MAIN SITE CONTENT --- */}
-      <div className={`main-site ${stage === 'main' ? 'fade-in' : ''}`}>
+      {/* MAIN SITE */}
+      <div className={`main-site ${hasStarted ? 'visible' : ''}`}>
         <nav className="navbar">
           <h2>Lovehearts</h2>
           <ul>
@@ -154,13 +188,17 @@ const Home: React.FC = () => {
 
         <header className="hero">
           <div className="trailer-wrapper">
-            <video autoPlay muted loop playsInline>
+            <video 
+              ref={trailerRef}
+              loop 
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            >
               <source src="/videos/trailer.mp4" type="video/mp4" />
             </video>
           </div>
         </header>
 
-        {/* --- SERVICES SECTION --- */}
         <section className="services-section">
           <h2 ref={titleRef} className="services-title-scroll">
             Our Services
@@ -174,16 +212,12 @@ const Home: React.FC = () => {
                 className="service-item"
                 style={{ flexDirection: index % 2 === 0 ? 'row' : 'row-reverse' }}
               >
-                {/* BLOOM EFFECT CONTAINER */}
                 <motion.div 
                   className="service-photo-wrapper"
-                  initial="hidden"       // Flowers are hidden by default
-                  whileHover="visible"   // Flowers bloom on hover
+                  initial="hidden"       
+                  whileHover="visible"   
                 >
-                  {/* 1. The Detailed Blooms (On Top) */}
                   <DetailedBlooms />
-                  
-                  {/* 2. The Main Service Image (Behind) */}
                   <img src={service.img} className="main-img" alt={service.title} />
                 </motion.div>
                 
