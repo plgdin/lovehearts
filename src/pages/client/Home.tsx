@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom'; // Import Link
 import { DetailedBlooms } from './DetailedBlooms';
 
 interface Heart {
@@ -48,24 +49,21 @@ const Home: React.FC = () => {
 
   // --- 2. NEW: VIDEO SCROLL OBSERVER (Play/Pause on Scroll) ---
   useEffect(() => {
-    // Only run this if the site has started and we have a video ref
     if (!hasStarted || !trailerRef.current) return;
 
     const videoElement = trailerRef.current;
 
     const videoObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        // If 50% or more of the video is visible: PLAY
         if (entry.isIntersecting) {
           videoElement.play().catch(e => console.log("Scroll play prevented:", e));
         } 
-        // If less than 50% is visible: PAUSE (this stops audio too)
         else {
           videoElement.pause();
         }
       });
     }, {
-      threshold: 0.5 // Trigger when 50% of the video is visible/hidden
+      threshold: 0.5 
     });
 
     videoObserver.observe(videoElement);
@@ -181,8 +179,16 @@ const Home: React.FC = () => {
         <nav className="navbar">
           <h2>Lovehearts</h2>
           <ul>
-            <li>Gallery</li>
-            <li>Contact</li>
+            <li>
+                <Link to="/gallery" style={{ color: '#fff', textDecoration: 'none' }}>
+                    Gallery
+                </Link>
+            </li>
+            <li>
+                <Link to="/contact" style={{ color: '#fff', textDecoration: 'none' }}>
+                    Contact
+                </Link>
+            </li>
           </ul>
         </nav>
 
