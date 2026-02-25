@@ -13,14 +13,19 @@ const Contact: React.FC = () => {
 
   const showNotification = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ show: true, message: msg, type });
-    setTimeout(() => setToast({ show: false, message: "", type: 'success' }), 4000);
+    // Clear toast after 4 seconds
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 4000);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
+    if (loading) return; // Prevent double submissions
 
-    const formData = new FormData(e.currentTarget);
+    setLoading(true);
+    const currentForm = e.currentTarget;
+    const formData = new FormData(currentForm);
     const data = Object.fromEntries(formData.entries());
 
     try {
@@ -33,15 +38,17 @@ const Contact: React.FC = () => {
         body: JSON.stringify(data),
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok && result.success === "true") {
         showNotification("Thank you! Your message has been sent.", 'success');
-        e.currentTarget.reset(); 
+        currentForm.reset(); 
       } else {
         showNotification("Failed to send message. Please try again.", 'error');
       }
     } catch (error) {
-      // This only triggers on genuine network failures, preventing double popups
-      console.error("Network Error:", error);
+      console.error("Submission error:", error);
+      // Only show error if the response wasn't actually a success
       showNotification("Network error. Please check your connection.", 'error');
     } finally {
       setLoading(false);
@@ -60,7 +67,7 @@ const Contact: React.FC = () => {
         </ul>
       </nav>
 
-      <section className="contact-section" style={{ padding: '80px 50px', color: '#fff' }}>
+      <section className="contact-section" style={{ padding: '80px 20px', color: '#fff' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -68,18 +75,19 @@ const Contact: React.FC = () => {
             transition={{ duration: 1 }}
             style={{ textAlign: 'center', marginBottom: '80px' }}
           >
-            <h1 className="services-title-scroll revealed" style={{ fontSize: '4rem', opacity: 1, transform: 'none' }}>
+            <h1 className="services-title-scroll revealed" style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', opacity: 1, transform: 'none' }}>
               Contact Us
             </h1>
-            <p style={{ fontFamily: 'Lato', fontWeight: 300, color: '#ccc', fontSize: '1.2rem', marginTop: '-60px' }}>
+            <p style={{ fontFamily: 'Lato', fontWeight: 300, color: '#ccc', fontSize: '1.2rem', marginTop: '-20px' }}>
               Let's create something beautiful together.
             </p>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '80px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px' }}>
+            {/* Contact Info */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
               <div className="service-info">
-                <h3 style={{ fontSize: '2.2rem' }}>Get in Touch</h3>
+                <h3 style={{ fontSize: '2.2rem', fontFamily: 'Playfair Display, serif' }}>Get in Touch</h3>
                 <p>We are based in Thiruvananthapuram, Kerala, ready to travel to your destination.</p>
               </div>
 
@@ -116,8 +124,10 @@ const Contact: React.FC = () => {
               </div>
             </div>
 
+            {/* Contact Form */}
             <div style={{ background: '#0a0a0a', padding: '40px', borderRadius: '20px', border: '1px solid #1a1a1a' }}>
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* FormSubmit Config */}
                 <input type="hidden" name="_captcha" value="false" />
                 <input type="hidden" name="_subject" value="New Inquiry from Lovehearts Website!" />
                 <input type="hidden" name="_template" value="table" />
@@ -128,14 +138,14 @@ const Contact: React.FC = () => {
                 </div>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Email</label>
-                        <input name="email" required type="email" disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Phone</label>
-                        <input name="phone" required type="tel" disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} />
-                    </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Email</label>
+                    <input name="email" required type="email" placeholder="email@example.com" disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Phone</label>
+                    <input name="phone" required type="tel" placeholder="Phone Number" disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} />
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -155,8 +165,26 @@ const Contact: React.FC = () => {
                   <textarea name="message" required rows={4} placeholder="Tell us about your event..." disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'none' }} />
                 </div>
 
-                <button disabled={loading} type="submit" className="start-btn" style={{ width: '100%', fontSize: '1rem', marginTop: '10px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
-                  {loading ? <><Loader2 className="animate-spin" style={{ marginRight: '10px' }} /> Sending...</> : <><Send size={18} style={{ marginRight: '10px' }} /> Send Message</>}
+                <button 
+                  disabled={loading} 
+                  type="submit" 
+                  className="start-btn" 
+                  style={{ 
+                    width: '100%', 
+                    fontSize: '1rem', 
+                    marginTop: '10px', 
+                    opacity: loading ? 0.7 : 1, 
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
+                >
+                  {loading ? (
+                    <><Loader2 className="animate-spin" style={{ marginRight: '10px' }} /> Sending...</>
+                  ) : (
+                    <><Send size={18} style={{ marginRight: '10px' }} /> Send Message</>
+                  )}
                 </button>
               </form>
             </div>
@@ -173,9 +201,24 @@ const Contact: React.FC = () => {
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: 50, x: "-50%" }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            style={{
+               position: 'fixed',
+               bottom: '30px',
+               left: '50%',
+               zIndex: 9999,
+               display: 'flex',
+               alignItems: 'center',
+               gap: '12px',
+               padding: '14px 28px',
+               borderRadius: '50px',
+               color: '#fff',
+               boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+               pointerEvents: 'none',
+               background: toast.type === 'success' ? '#2ed573' : '#ff4757'
+            }}
           >
             {toast.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
-            {toast.message}
+            <span style={{ fontFamily: 'Lato, sans-serif', fontSize: '0.95rem' }}>{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>

@@ -953,7 +953,6 @@ body, html {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ff4757; /* Lovehearts Pink */
   color: white;
   padding: 14px 28px;
   border-radius: 50px;
@@ -961,16 +960,22 @@ body, html {
   font-weight: 400;
   font-size: 0.95rem;
   letter-spacing: 0.5px;
-  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
   z-index: 9999;
   display: flex;
   align-items: center;
   gap: 12px;
   pointer-events: none;
+  white-space: nowrap; /* Prevent text wrapping on mobile */
 }
 
-/* Success variant */
+/* Success variant - Elegant Green */
 .custom-toast.success {
-  background: #2ed573; /* Elegant Green */
-  box-shadow: 0 10px 30px rgba(46, 213, 115, 0.3);
+  background: #2ed573; 
+  box-shadow: 0 10px 30px rgba(46, 213, 115, 0.4);
+}
+
+/* Error variant - Red (Matches your screenshot) */
+.custom-toast.error {
+  background: #ff4757; 
+  box-shadow: 0 10px 30px rgba(255, 71, 87, 0.4);
 }
