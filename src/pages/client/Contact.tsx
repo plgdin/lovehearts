@@ -1,24 +1,45 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, Clock, Instagram } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate form submission
-    setTimeout(() => {
+
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      // FormSubmit AJAX integration
+      const response = await fetch("https://formsubmit.co/ajax/alanbijialex@gmail.com", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("Thank you! Your message has been sent to Lovehearts. We'll get back to you within 24 hours.");
+        e.currentTarget.reset(); 
+      } else {
+        alert("Failed to send message. Please try again or contact us directly via phone.");
+      }
+    } catch (error) {
+      console.error("Network Error:", error);
+      alert("There was a network error. Please check your connection.");
+    } finally {
       setLoading(false);
-      alert("Thank you! Your message has been sent to Lovehearts.");
-    }, 1500);
+    }
   };
 
   return (
     <div className="app-container">
-      {/* Navbar Integration */}
       <nav className="navbar" style={{ position: 'relative' }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
           <h2>Lovehearts</h2>
@@ -48,13 +69,14 @@ const Contact: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '80px' }}>
             
-            {/* Contact Info */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+            {/* Contact Info & New Info Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
               <div className="service-info">
                 <h3 style={{ fontSize: '2.2rem' }}>Get in Touch</h3>
                 <p>We are based in Thiruvananthapuram, Kerala, ready to travel to your destination.</p>
               </div>
 
+              {/* Individual Contact Items */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                   <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(255,71,87,0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ff4757' }}>
@@ -62,7 +84,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p style={{ fontSize: '0.8rem', color: '#666', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Email</p>
-                    <p style={{ fontFamily: 'Lato', fontSize: '1.1rem' }}>hello@lovehearts.com</p>
+                    <p style={{ fontFamily: 'Lato', fontSize: '1.1rem' }}>loveheartstvm@gmail.com</p>
                   </div>
                 </div>
 
@@ -72,48 +94,92 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p style={{ fontSize: '0.8rem', color: '#666', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Phone</p>
-                    <p style={{ fontFamily: 'Lato', fontSize: '1.1rem' }}>+91 98765 43210</p>
+                    <p style={{ fontFamily: 'Lato', fontSize: '1.1rem' }}>+91 90614 74443</p>
                   </div>
                 </div>
 
+                {/* Added Response Time Card logic */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                   <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(255,71,87,0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ff4757' }}>
-                    <MapPin size={20} />
+                    <Clock size={20} />
                   </div>
                   <div>
-                    <p style={{ fontSize: '0.8rem', color: '#666', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Location</p>
-                    <p style={{ fontFamily: 'Lato', fontSize: '1.1rem' }}>Thiruvananthapuram, Kerala</p>
+                    <p style={{ fontSize: '0.8rem', color: '#666', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Response Time</p>
+                    <p style={{ fontFamily: 'Lato', fontSize: '1.1rem' }}>Within 24 business hours</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Contact Form */}
+            {/* Enhanced Contact Form */}
             <div style={{ background: '#0a0a0a', padding: '40px', borderRadius: '20px', border: '1px solid #1a1a1a' }}>
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* FormSubmit Configuration Fields */}
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_subject" value="New Inquiry from Lovehearts Website!" />
+                <input type="hidden" name="_template" value="table" />
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Your Name</label>
+                  <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Full Name</label>
                   <input 
+                    name="name"
                     required 
                     type="text" 
+                    placeholder="Name"
+                    disabled={loading}
                     style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} 
                   />
                 </div>
                 
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Email</label>
+                        <input 
+                            name="email"
+                            required 
+                            type="email" 
+                            disabled={loading}
+                            style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} 
+                        />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Phone</label>
+                        <input 
+                            name="phone"
+                            required 
+                            type="tel" 
+                            disabled={loading}
+                            style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} 
+                        />
+                    </div>
+                </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Email Address</label>
-                  <input 
-                    required 
-                    type="email" 
-                    style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} 
-                  />
+                  <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Inquiry Type</label>
+                  <select
+                    name="inquiryType"
+                    required
+                    disabled={loading}
+                    style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none', appearance: 'none' }}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Select a service</option>
+                    <option value="Wedding Planning">Wedding Planning</option>
+                    <option value="Engagement">Engagement</option>
+                    <option value="Birthday Celebration">Birthday Celebration</option>
+                    <option value="Haldi Ceremony">Haldi Ceremony</option>
+                    <option value="Other Events">Other Events</option>
+                  </select>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Message</label>
                   <textarea 
+                    name="message"
                     required 
-                    rows={5} 
+                    rows={4} 
+                    placeholder="Tell us about your event..."
+                    disabled={loading}
                     style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'none' }} 
                   />
                 </div>
@@ -122,13 +188,22 @@ const Contact: React.FC = () => {
                   disabled={loading} 
                   type="submit" 
                   className="start-btn" 
-                  style={{ width: '100%', fontSize: '1rem', marginTop: '10px' }}
+                  style={{ 
+                    width: '100%', 
+                    fontSize: '1rem', 
+                    marginTop: '10px',
+                    opacity: loading ? 0.7 : 1,
+                    cursor: loading ? 'not-allowed' : 'pointer'
+                  }}
                 >
-                  {loading ? <Loader2 className="animate-spin" /> : <><Send size={18} style={{ marginRight: '10px' }} /> Send Message</>}
+                  {loading ? (
+                    <><Loader2 className="animate-spin" style={{ marginRight: '10px' }} /> Sending...</>
+                  ) : (
+                    <><Send size={18} style={{ marginRight: '10px' }} /> Send Message</>
+                  )}
                 </button>
               </form>
             </div>
-
           </div>
         </div>
       </section>
