@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, Loader2, Clock, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, Clock, CheckCircle2 } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
+
+  const showNotification = (msg: string) => {
+    setToast({ show: true, message: msg });
+    setTimeout(() => setToast({ show: false, message: "" }), 4000);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -14,7 +20,6 @@ const Contact: React.FC = () => {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      // FormSubmit AJAX integration
       const response = await fetch("https://formsubmit.co/ajax/alanbijialex@gmail.com", {
         method: "POST",
         headers: { 
@@ -24,15 +29,17 @@ const Contact: React.FC = () => {
         body: JSON.stringify(data),
       });
 
+      // Fix: We don't need to call response.json() if we only care about success
       if (response.ok) {
-        alert("Thank you! Your message has been sent to Lovehearts. We'll get back to you within 24 hours.");
+        showNotification("Message sent successfully!");
         e.currentTarget.reset(); 
       } else {
-        alert("Failed to send message. Please try again or contact us directly via phone.");
+        showNotification("Failed to send message. Please try again.");
       }
     } catch (error) {
+      // This catch block only triggers on actual network failures
       console.error("Network Error:", error);
-      alert("There was a network error. Please check your connection.");
+      showNotification("Network error. Please check your connection.");
     } finally {
       setLoading(false);
     }
@@ -40,6 +47,7 @@ const Contact: React.FC = () => {
 
   return (
     <div className="app-container">
+      {/* Navbar Integration */}
       <nav className="navbar" style={{ position: 'relative' }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
           <h2>Lovehearts</h2>
@@ -69,14 +77,13 @@ const Contact: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '80px' }}>
             
-            {/* Contact Info & New Info Cards */}
+            {/* Contact Info */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
               <div className="service-info">
                 <h3 style={{ fontSize: '2.2rem' }}>Get in Touch</h3>
                 <p>We are based in Thiruvananthapuram, Kerala, ready to travel to your destination.</p>
               </div>
 
-              {/* Individual Contact Items */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                   <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(255,71,87,0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ff4757' }}>
@@ -98,7 +105,6 @@ const Contact: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Added Response Time Card logic */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                   <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(255,71,87,0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#ff4757' }}>
                     <Clock size={20} />
@@ -111,10 +117,9 @@ const Contact: React.FC = () => {
               </div>
             </div>
 
-            {/* Enhanced Contact Form */}
+            {/* Contact Form */}
             <div style={{ background: '#0a0a0a', padding: '40px', borderRadius: '20px', border: '1px solid #1a1a1a' }}>
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {/* FormSubmit Configuration Fields */}
                 <input type="hidden" name="_captcha" value="false" />
                 <input type="hidden" name="_subject" value="New Inquiry from Lovehearts Website!" />
                 <input type="hidden" name="_template" value="table" />
@@ -207,6 +212,20 @@ const Contact: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Modern Notification Toast */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div 
+            className="custom-toast"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <CheckCircle2 size={18} color="#fff" /> {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
