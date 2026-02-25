@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, Loader2, Clock, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const Contact: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ 
+    show: false, 
+    message: "", 
+    type: 'success' 
+  });
 
-  const showNotification = (msg: string) => {
-    setToast({ show: true, message: msg });
-    setTimeout(() => setToast({ show: false, message: "" }), 4000);
+  const showNotification = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, message: msg, type });
+    setTimeout(() => setToast({ show: false, message: "", type: 'success' }), 4000);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -29,17 +33,16 @@ const Contact: React.FC = () => {
         body: JSON.stringify(data),
       });
 
-      // Fix: We don't need to call response.json() if we only care about success
       if (response.ok) {
-        showNotification("Message sent successfully!");
+        showNotification("Thank you! Your message has been sent.", 'success');
         e.currentTarget.reset(); 
       } else {
-        showNotification("Failed to send message. Please try again.");
+        showNotification("Failed to send message. Please try again.", 'error');
       }
     } catch (error) {
-      // This catch block only triggers on actual network failures
+      // This only triggers on genuine network failures, preventing double popups
       console.error("Network Error:", error);
-      showNotification("Network error. Please check your connection.");
+      showNotification("Network error. Please check your connection.", 'error');
     } finally {
       setLoading(false);
     }
@@ -47,7 +50,6 @@ const Contact: React.FC = () => {
 
   return (
     <div className="app-container">
-      {/* Navbar Integration */}
       <nav className="navbar" style={{ position: 'relative' }}>
         <Link to="/" style={{ textDecoration: 'none' }}>
           <h2>Lovehearts</h2>
@@ -60,7 +62,6 @@ const Contact: React.FC = () => {
 
       <section className="contact-section" style={{ padding: '80px 50px', color: '#fff' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -76,8 +77,6 @@ const Contact: React.FC = () => {
           </motion.div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '80px' }}>
-            
-            {/* Contact Info */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
               <div className="service-info">
                 <h3 style={{ fontSize: '2.2rem' }}>Get in Touch</h3>
@@ -117,7 +116,6 @@ const Contact: React.FC = () => {
               </div>
             </div>
 
-            {/* Contact Form */}
             <div style={{ background: '#0a0a0a', padding: '40px', borderRadius: '20px', border: '1px solid #1a1a1a' }}>
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <input type="hidden" name="_captcha" value="false" />
@@ -126,48 +124,23 @@ const Contact: React.FC = () => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Full Name</label>
-                  <input 
-                    name="name"
-                    required 
-                    type="text" 
-                    placeholder="Name"
-                    disabled={loading}
-                    style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} 
-                  />
+                  <input name="name" required type="text" placeholder="Name" disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} />
                 </div>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Email</label>
-                        <input 
-                            name="email"
-                            required 
-                            type="email" 
-                            disabled={loading}
-                            style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} 
-                        />
+                        <input name="email" required type="email" disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Phone</label>
-                        <input 
-                            name="phone"
-                            required 
-                            type="tel" 
-                            disabled={loading}
-                            style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} 
-                        />
+                        <input name="phone" required type="tel" disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} />
                     </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Inquiry Type</label>
-                  <select
-                    name="inquiryType"
-                    required
-                    disabled={loading}
-                    style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none', appearance: 'none' }}
-                    defaultValue=""
-                  >
+                  <select name="inquiryType" required disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none' }} defaultValue="">
                     <option value="" disabled>Select a service</option>
                     <option value="Wedding Planning">Wedding Planning</option>
                     <option value="Engagement">Engagement</option>
@@ -179,33 +152,11 @@ const Contact: React.FC = () => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#666', letterSpacing: '1px' }}>Message</label>
-                  <textarea 
-                    name="message"
-                    required 
-                    rows={4} 
-                    placeholder="Tell us about your event..."
-                    disabled={loading}
-                    style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'none' }} 
-                  />
+                  <textarea name="message" required rows={4} placeholder="Tell us about your event..." disabled={loading} style={{ background: '#000', border: '1px solid #333', padding: '15px', borderRadius: '8px', color: '#fff', outline: 'none', resize: 'none' }} />
                 </div>
 
-                <button 
-                  disabled={loading} 
-                  type="submit" 
-                  className="start-btn" 
-                  style={{ 
-                    width: '100%', 
-                    fontSize: '1rem', 
-                    marginTop: '10px',
-                    opacity: loading ? 0.7 : 1,
-                    cursor: loading ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  {loading ? (
-                    <><Loader2 className="animate-spin" style={{ marginRight: '10px' }} /> Sending...</>
-                  ) : (
-                    <><Send size={18} style={{ marginRight: '10px' }} /> Send Message</>
-                  )}
+                <button disabled={loading} type="submit" className="start-btn" style={{ width: '100%', fontSize: '1rem', marginTop: '10px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
+                  {loading ? <><Loader2 className="animate-spin" style={{ marginRight: '10px' }} /> Sending...</> : <><Send size={18} style={{ marginRight: '10px' }} /> Send Message</>}
                 </button>
               </form>
             </div>
@@ -213,16 +164,18 @@ const Contact: React.FC = () => {
         </div>
       </section>
 
-      {/* Modern Notification Toast */}
+      {/* High-Quality Custom Toast */}
       <AnimatePresence>
         {toast.show && (
           <motion.div 
-            className="custom-toast"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            className={`custom-toast ${toast.type}`}
+            initial={{ opacity: 0, y: 50, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 50, x: "-50%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
-            <CheckCircle2 size={18} color="#fff" /> {toast.message}
+            {toast.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+            {toast.message}
           </motion.div>
         )}
       </AnimatePresence>
