@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom'; // Import Link
 import { DetailedBlooms } from './DetailedBlooms';
 
 interface Heart {
@@ -10,18 +9,27 @@ interface Heart {
   size: number;
 }
 
-const Home: React.FC = () => {
-  // --- STATE ---
+// Added interface to define the prop received from App.tsx
+interface HomeProps {
+  setGlobalStarted: (val: boolean) => void;
+}
+
+const Home: React.FC<HomeProps> = ({ setGlobalStarted }) => {
   const [hasStarted, setHasStarted] = useState(false);
   const [hearts, setHearts] = useState<Heart[]>([]);
   const [introUnmounted, setIntroUnmounted] = useState(false);
 
-  // --- REFS ---
   const trailerRef = useRef<HTMLVideoElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // --- 1. INITIAL TRAILER AUTOPLAY LOGIC ---
+  // Reset internal state and hide navbar when navigating back to Home
+  useEffect(() => {
+    setHasStarted(false);
+    setIntroUnmounted(false);
+    setGlobalStarted(false);
+  }, [setGlobalStarted]);
+
   useEffect(() => {
     if (hasStarted) {
       const video = trailerRef.current;
@@ -38,7 +46,6 @@ const Home: React.FC = () => {
         }
       }
 
-      // Remove intro from DOM after 2.5s
       const timer = setTimeout(() => {
         setIntroUnmounted(true);
       }, 2500);
@@ -47,7 +54,6 @@ const Home: React.FC = () => {
     }
   }, [hasStarted]);
 
-  // --- 2. NEW: VIDEO SCROLL OBSERVER (Play/Pause on Scroll) ---
   useEffect(() => {
     if (!hasStarted || !trailerRef.current) return;
 
@@ -67,13 +73,9 @@ const Home: React.FC = () => {
     });
 
     videoObserver.observe(videoElement);
-
-    return () => {
-      videoObserver.disconnect();
-    };
+    return () => videoObserver.disconnect();
   }, [hasStarted]);
 
-  // --- 3. EXISTING ANIMATION OBSERVER (Reveal Text) ---
   useEffect(() => {
     if (!hasStarted) return;
 
@@ -96,7 +98,6 @@ const Home: React.FC = () => {
     return () => observer.disconnect();
   }, [hasStarted]);
 
-  // --- HANDLERS ---
   const handleStartClick = () => {
     const newHearts: Heart[] = [];
     for (let i = 0; i < 40; i++) {
@@ -111,6 +112,7 @@ const Home: React.FC = () => {
 
     setTimeout(() => {
       setHasStarted(true);
+      setGlobalStarted(true); // Updates the global state to fade in the Navbar
     }, 800);
   };
 
@@ -143,8 +145,6 @@ const Home: React.FC = () => {
 
   return (
     <div className="app-container">
-      
-      {/* INTRO CURTAIN */}
       {!introUnmounted && (
         <div className={`intro-layer ${hasStarted ? 'fade-out' : ''}`}>
           <video className="bg-video" autoPlay muted loop playsInline>
@@ -174,23 +174,8 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* MAIN SITE */}
       <div className={`main-site ${hasStarted ? 'visible' : ''}`}>
-        <nav className="navbar">
-          <h2>Lovehearts</h2>
-          <ul>
-            <li>
-                <Link to="/gallery" style={{ color: '#fff', textDecoration: 'none' }}>
-                    Gallery
-                </Link>
-            </li>
-            <li>
-                <Link to="/contact" style={{ color: '#fff', textDecoration: 'none' }}>
-                    Contact
-                </Link>
-            </li>
-          </ul>
-        </nav>
+        {/* Global Navbar handles navigation */}
 
         <header className="hero">
           <div className="trailer-wrapper">

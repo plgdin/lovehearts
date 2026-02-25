@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, Loader2, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const Contact: React.FC = () => {
@@ -13,7 +12,6 @@ const Contact: React.FC = () => {
 
   const showNotification = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ show: true, message: msg, type });
-    // Clear toast after 4 seconds
     setTimeout(() => {
       setToast(prev => ({ ...prev, show: false }));
     }, 4000);
@@ -21,7 +19,7 @@ const Contact: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (loading) return; // Prevent double submissions
+    if (loading) return;
 
     setLoading(true);
     const currentForm = e.currentTarget;
@@ -48,7 +46,6 @@ const Contact: React.FC = () => {
       }
     } catch (error) {
       console.error("Submission error:", error);
-      // Only show error if the response wasn't actually a success
       showNotification("Network error. Please check your connection.", 'error');
     } finally {
       setLoading(false);
@@ -57,15 +54,7 @@ const Contact: React.FC = () => {
 
   return (
     <div className="app-container">
-      <nav className="navbar" style={{ position: 'relative' }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <h2>Lovehearts</h2>
-        </Link>
-        <ul>
-          <li><Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link></li>
-          <li><Link to="/gallery" style={{ color: '#fff', textDecoration: 'none' }}>Gallery</Link></li>
-        </ul>
-      </nav>
+      {/* Global Navbar handles navigation */}
 
       <section className="contact-section" style={{ padding: '80px 20px', color: '#fff' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -84,7 +73,6 @@ const Contact: React.FC = () => {
           </motion.div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '60px' }}>
-            {/* Contact Info */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
               <div className="service-info">
                 <h3 style={{ fontSize: '2.2rem', fontFamily: 'Playfair Display, serif' }}>Get in Touch</h3>
@@ -124,10 +112,8 @@ const Contact: React.FC = () => {
               </div>
             </div>
 
-            {/* Contact Form */}
             <div style={{ background: '#0a0a0a', padding: '40px', borderRadius: '20px', border: '1px solid #1a1a1a' }}>
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {/* FormSubmit Config */}
                 <input type="hidden" name="_captcha" value="false" />
                 <input type="hidden" name="_subject" value="New Inquiry from Lovehearts Website!" />
                 <input type="hidden" name="_template" value="table" />
@@ -192,7 +178,6 @@ const Contact: React.FC = () => {
         </div>
       </section>
 
-      {/* High-Quality Custom Toast */}
       <AnimatePresence>
         {toast.show && (
           <motion.div 

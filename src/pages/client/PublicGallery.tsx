@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { ArrowLeft } from 'lucide-react';
 
@@ -38,7 +37,6 @@ const PublicGallery: React.FC = () => {
   }, []);
 
   // --- LOGIC TO GROUP BY CATEGORY ---
-  // Picks the most recent image for each category to use as a thumbnail
   const categoryThumbnails = galleryItems.reduce((acc: GalleryItem[], current) => {
     const x = acc.find(item => item.category === current.category);
     if (!x) return acc.concat([current]);
@@ -50,15 +48,7 @@ const PublicGallery: React.FC = () => {
 
   return (
     <div className="app-container">
-      <nav className="navbar" style={{ position: 'relative' }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-            <h2>Lovehearts</h2>
-        </Link>
-        <ul>
-          <li><Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link></li>
-          <li><Link to="/contact" style={{ color: '#fff', textDecoration: 'none' }}>Contact</Link></li>
-        </ul>
-      </nav>
+      {/* Global Navbar handles navigation */}
 
       <section className="gallery-section">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '60px' }}>
@@ -72,7 +62,7 @@ const PublicGallery: React.FC = () => {
                     <ArrowLeft size={30} />
                 </motion.button>
             )}
-            <h2 className="services-title-scroll revealed" style={{ opacity: 1, transform: 'translateY(0)', margin: 0 }}>
+            <h2 className="services-title-scroll revealed" style={{ opacity: 1, transform: 'none', margin: 0 }}>
                 {selectedCategory ? selectedCategory : "Gallery"}
             </h2>
         </div>
@@ -82,7 +72,7 @@ const PublicGallery: React.FC = () => {
         <div className="gallery-grid">
           <AnimatePresence mode="wait">
             {!selectedCategory ? (
-              // --- MAIN VIEW: 3 CATEGORIES PER ROW ---
+              // --- MAIN VIEW ---
               categoryThumbnails.map((item, index) => (
                 <motion.div 
                   key={item.category}
@@ -105,7 +95,7 @@ const PublicGallery: React.FC = () => {
                 </motion.div>
               ))
             ) : (
-              // --- DETAIL VIEW: ALL PHOTOS IN CATEGORY ---
+              // --- DETAIL VIEW ---
               filteredItems.map((item, index) => (
                 <motion.div 
                   key={item.id}
@@ -118,7 +108,6 @@ const PublicGallery: React.FC = () => {
                   <div className="gallery-img-wrapper">
                     <img src={item.image_url} alt={item.title} />
                   </div>
-                  {/* NO TEXT BELOW AS REQUESTED */}
                 </motion.div>
               ))
             )}
