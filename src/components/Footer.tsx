@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const Footer: React.FC = () => {
   return (
@@ -16,19 +17,24 @@ const Footer: React.FC = () => {
         </p>
         <p style={{ fontSize: '0.75rem', marginTop: '10px', opacity: 0.8 }}>
           Developed by{' '}
-          <a 
+          <motion.a 
             href="https://plgdinn.com" 
             target="_blank" 
             rel="noopener noreferrer"
             style={{ 
-              color: '#fff', 
+              color: '#ffffff', 
               textDecoration: 'none', 
               fontWeight: 'bold',
-              transition: 'color 0.3s ease'
+              display: 'inline-block'
             }}
+            whileHover={{ 
+              color: '#ffd700', 
+              textShadow: '0px 0px 10px rgba(255, 215, 0, 0.8)' 
+            }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             PluggedIn
-          </a>
+          </motion.a>
         </p>
       </div>
     </footer>
