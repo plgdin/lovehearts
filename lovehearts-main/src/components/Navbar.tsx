@@ -8,11 +8,20 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ isVisible = true }) => {
   return (
     <nav className={`navbar ${!isVisible ? 'navbar-hidden' : 'navbar-visible'}`}>
-      <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
+      <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
         <img 
           src="/images/love hearts (w) logo.png" 
           alt="Lovehearts Logo" 
-          style={{ height: '70px', width: 'auto' }} 
+          onLoad={() => console.log("Navbar Logo Loaded")}
+          onError={(e) => console.error("Navbar Logo Load Failed. Check if the filename in public/images/ is exactly 'love hearts (w) logo.png' (lowercase png)")}
+          style={{ 
+            height: '70px', 
+            width: 'auto', 
+            display: 'block',
+            opacity: 1,
+            visibility: 'visible',
+            border: 'none'
+          }} 
         />
       </Link>
       <ul>
