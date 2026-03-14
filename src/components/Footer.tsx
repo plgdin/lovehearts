@@ -15,7 +15,20 @@ const Footer: React.FC = () => {
           © {new Date().getFullYear()} Lovehearts Wedding & Event Planners. All Rights Reserved.
         </p>
         <p style={{ fontSize: '0.75rem', marginTop: '10px', opacity: 0.8 }}>
-          Developed by PLGDIN
+          Developed by{' '}
+          <a 
+            href="https://plgdinn.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ 
+              color: '#fff', 
+              textDecoration: 'none', 
+              fontWeight: 'bold',
+              transition: 'color 0.3s ease'
+            }}
+          >
+            PluggedIn
+          </a>
         </p>
       </div>
     </footer>
