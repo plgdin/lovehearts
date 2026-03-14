@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom'; // Added for navigation
 import { DetailedBlooms } from './DetailedBlooms';
 
 interface Heart {
@@ -22,6 +23,9 @@ const Home: React.FC<HomeProps> = ({ setGlobalStarted }) => {
   const trailerRef = useRef<HTMLVideoElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Initialize navigation hook
+  const navigate = useNavigate();
 
   // Reset internal state and hide navbar when navigating back to Home
   useEffect(() => {
@@ -206,7 +210,9 @@ const Home: React.FC<HomeProps> = ({ setGlobalStarted }) => {
                 <motion.div 
                   className="service-photo-wrapper"
                   initial="hidden"       
-                  whileHover="visible"   
+                  whileHover="visible"
+                  onClick={() => navigate('/contact')} // Added redirection on click
+                  style={{ cursor: 'pointer' }} // Added to ensure the user knows it's clickable
                 >
                   <DetailedBlooms />
                   <img src={service.img} className="main-img" alt={service.title} />
