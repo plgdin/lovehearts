@@ -10,7 +10,7 @@ const Navbar: React.FC<NavbarProps> = ({ isVisible = true }) => {
     <nav className={`navbar ${!isVisible ? 'navbar-hidden' : 'navbar-visible'}`}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
         <img 
-          src="public/images/love hearts (w) logo.PNG" 
+          src="public/images/lovehearts-logo.png" 
           alt="Lovehearts Logo" 
           style={{ height: '70px', width: 'auto' }} 
         />
