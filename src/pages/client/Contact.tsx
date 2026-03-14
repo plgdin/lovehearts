@@ -27,7 +27,7 @@ const Contact: React.FC = () => {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch("https://formsubmit.co/ajax/loveheartstvm@gmail.com", {
+      const response = await fetch("https://formsubmit.co/ajax/mail@loveheartsevents.com", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -86,7 +86,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <p style={{ fontSize: '0.8rem', color: '#666', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Email</p>
-                    <p style={{ fontFamily: 'Lato', fontSize: '1.1rem' }}>loveheartstvm@gmail.com</p>
+                    <p style={{ fontFamily: 'Lato', fontSize: '1.1rem' }}>mail@loveheartsevents.com</p>
                   </div>
                 </div>
 
