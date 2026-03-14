@@ -10,7 +10,7 @@ const Navbar: React.FC<NavbarProps> = ({ isVisible = true }) => {
     <nav className={`navbar ${!isVisible ? 'navbar-hidden' : 'navbar-visible'}`}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
         <img 
-          src="/images/love hearts (w) logo.png" 
+          src="/images/lovehearts-logo.png" 
           alt="Lovehearts Logo" 
           onLoad={() => console.log("Navbar Logo Loaded")}
           onError={(e) => console.error("Navbar Logo Load Failed. Check if the filename in public/images/ is exactly 'love hearts (w) logo.png' (lowercase png)")}
