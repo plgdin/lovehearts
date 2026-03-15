@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logoImage from '../assets/lovehearts-logo.png';
 
 interface NavbarProps {
   isVisible?: boolean;
@@ -10,7 +11,7 @@ const Navbar: React.FC<NavbarProps> = ({ isVisible = true }) => {
     <nav className={`navbar ${!isVisible ? 'navbar-hidden' : 'navbar-visible'}`}>
       <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
         <img 
-          src="/images/lovehearts-logo.png" 
+          src={logoImage} 
           alt="Lovehearts Logo" 
           style={{ height: '70px', width: 'auto' }} 
         />
